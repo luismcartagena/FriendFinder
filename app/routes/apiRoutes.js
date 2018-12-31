@@ -6,6 +6,17 @@
 
 const friendsData = require("../data/friends");
 
+
+const scoreSurvey = (survey) => {
+  let total = 0;
+  for (let i = 0; i < survey.length; i++) {
+      total += +survey[i];
+  }
+  
+  return total;
+}
+
+
 // ===============================================================================
 // ROUTING
 // ===============================================================================
@@ -35,17 +46,20 @@ module.exports = function(app) {
     // It will do this by sending out the value "true" have a table
     // req.body is available since we're using the body parsing middleware
     
-    console.log(res);
-    console.log(friendsArray.scores);
+      let userScore = scoreSurvey(req.body.scores);
+      let matchProfile = friendsData[0];
+      let matchPoint = Math.abs( scoreSurvey(matchProfile.scores) - userScore );
 
-    // if (tableData.length < 5) {
-    //   tableData.push(req.body);
-    //   res.json(true);
-    // }
-    // else {
-    //   waitListData.push(req.body);
-    //   res.json(false);
-    // }
+      for (let i = 0; i < friendsData.length; i++) {
+          let contenderScore = Math.abs( scoreSurvey(friendsData[i].scores) - userScore );
+          if ( contenderScore < matchPoint ) {
+              matchPoint = contenderScore;
+              matchProfile = friendsData[i];
+          }
+      }
+
+      friendsData.push(req.body);
+      res.json(matchProfile);
   });
 
   // ---------------------------------------------------------------------------
